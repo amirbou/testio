@@ -1,0 +1,10 @@
+[package]
+edition = "2021"
+name = "testio"
+version = "0.1.0"
+[dependencies]
+fuser = "*"
+libc = "*"
+log = "*"
+env_logger = "*"
+clap = "*"
