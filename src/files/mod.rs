@@ -1,10 +1,10 @@
 mod file_base;
 mod empty;
 mod prepopulated;
-mod read_one;
 mod write_one;
+mod readx;
 
 pub use prepopulated::PrepopulatedFile;
 pub use empty::EmptyROFile;
-pub use read_one::ReadOneFile;
+pub use readx::ReadX;
 pub use write_one::WriteOneFile;

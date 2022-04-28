@@ -1,7 +1,7 @@
 use std::vec;
 
 use fuser::MountOption;
-use testio::{testfs::{TestFs, FsFile}, files::EmptyROFile, files::{PrepopulatedFile, ReadOneFile, WriteOneFile}};
+use testio::{testfs::{TestFs, FsFile}, files::EmptyROFile, files::{PrepopulatedFile, ReadX, WriteOneFile}};
 use clap::{arg, Command};
 
 
@@ -23,7 +23,12 @@ fn create_files() -> Vec<Box<dyn FsFile>>
     let readone_names = vec!["readone1", "readone2"];
     for name in readone_names {
         let data = String::from(name) + "\n".into();
-        files.push(Box::new(ReadOneFile::new(name.into(), data)) as Box<dyn FsFile>);
+        files.push(Box::new(ReadX::new(name.into(), data, |_| 1)) as Box<dyn FsFile>);
+    }
+
+    for i in 2..10 {
+        let data = "a".repeat(100_000);
+        files.push(Box::new(ReadX::new(format!("readX{}", i), data, move |size| size / i)));
     }
 
     let writeone_names = vec!["writeone1", "writeone2"];
@@ -32,9 +37,6 @@ fn create_files() -> Vec<Box<dyn FsFile>>
     }
 
     files
-    
-    // let full_names = vec![("full1".into(), "")]
-    // , "f3".into(), "f4".into(), "f5".into()];
 }
 
 fn main() {
