@@ -1,7 +1,7 @@
 use fuser::FileAttr;
 
 use crate::testfs::{FsFile, Result};
-use crate::files::constant_file::ReadableFile;
+use crate::files::file_base::{ReadableFile};
 
 pub struct ReadOneFile {
     name: std::ffi::OsString,

@@ -2,7 +2,35 @@ use fuser::FileAttr;
 
 use crate::testfs::generate_fileattr;
 
-use super::constant_file::ReadableFile;
+pub trait ReadableFile {
+    fn get_data(&self) -> &[u8];
+    
+    fn get_size(&self) -> usize {
+        self.get_data().len()
+    }
+    
+    fn _read(&self, offset: i64, size: u32) -> &[u8]{
+        let data = self.get_data();
+        let mut offset = offset as usize;
+
+        if offset > data.len() {
+            offset = data.len();
+        }
+        let mut end = offset + size as usize;
+        if end > data.len() {
+            end = data.len();
+        }
+        &data[offset..end]
+    }
+    
+    fn get_perms(&self) -> u16 {
+        return 0o444;
+    }
+
+    fn _getattr(&self) -> FileAttr {
+        generate_fileattr(self.get_size() as u64, self.get_perms(), false)
+    }
+}
 
 pub trait WriteableFile: ReadableFile {
     fn get_data_mut(&mut self) -> &mut Vec<u8>;
@@ -60,6 +88,6 @@ pub trait WriteableFile: ReadableFile {
             self.get_data_mut().resize(size as usize, 0);
         }
         
-        Some(generate_fileattr(self.get_size() as u64, 0o666, false))
+        Some(generate_fileattr(self.get_size() as u64, self.get_perms(), false))
     }
 }

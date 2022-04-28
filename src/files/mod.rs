@@ -1,8 +1,7 @@
-mod constant_file;
+mod file_base;
 mod empty;
 mod prepopulated;
 mod read_one;
-mod writeable_file;
 mod write_one;
 
 pub use prepopulated::PrepopulatedFile;

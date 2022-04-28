@@ -1,8 +1,7 @@
 use fuser::FileAttr;
 
-use crate::testfs::{FsFile, Result, generate_fileattr};
-use crate::files::constant_file::ReadableFile;
-use crate::files::writeable_file::WriteableFile;
+use crate::testfs::{FsFile, Result};
+use crate::files::file_base::{ReadableFile,WriteableFile};
 
 pub struct WriteOneFile {
     name: std::ffi::OsString,
@@ -19,6 +18,10 @@ impl WriteOneFile {
 impl ReadableFile for WriteOneFile {
     fn get_data(&self) -> &[u8] {
         &self.data
+    }
+
+    fn get_perms(&self) -> u16 {
+        0o666
     }
 }
 
@@ -39,7 +42,7 @@ impl FsFile for WriteOneFile {
     }
 
     fn getattr(&self) -> FileAttr {
-        generate_fileattr(self.get_size() as u64, 0o666, false)
+        self._getattr()
     }
 
     fn write(&mut self, offset: i64, data: &[u8], _flags: i32) -> Result<u32> {
