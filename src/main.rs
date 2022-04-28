@@ -1,7 +1,7 @@
 use std::vec;
 
 use fuser::MountOption;
-use testio::{testfs::{TestFs, FsFile}, files::EmptyROFile, files::{PrepopulatedFile, ReadX, WriteOneFile}};
+use testio::{testfs::{TestFs, FsFile}, files::EmptyROFile, files::{PrepopulatedFile, ReadX, WriteX}};
 use clap::{arg, Command};
 
 
@@ -33,7 +33,21 @@ fn create_files() -> Vec<Box<dyn FsFile>>
 
     let writeone_names = vec!["writeone1", "writeone2"];
     for name in writeone_names {
-        files.push(Box::new(WriteOneFile::new(name.into())) as Box<dyn FsFile>);
+        files.push(Box::new(WriteX::new(name.into(), |data| &data[..1])) as Box<dyn FsFile>);
+    }
+
+    for i in 2..10 {
+        files.push(
+            Box::new(
+                WriteX::new(
+                    format!("writeX{}", i),
+                    move |data| {
+                        let size = std::cmp::max(data.len() / i, 1);
+                        &data[..size]
+                    }
+                )
+            )
+        );
     }
 
     files

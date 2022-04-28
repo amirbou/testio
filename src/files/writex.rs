@@ -3,19 +3,20 @@ use fuser::FileAttr;
 use crate::testfs::{FsFile, Result};
 use crate::files::file_base::{ReadableFile,WriteableFile};
 
-pub struct WriteOneFile {
+pub struct WriteX<F: Fn(&[u8],) -> &[u8]> {
     name: std::ffi::OsString,
-    data: Vec<u8>
+    data: Vec<u8>,
+    write_data_func: F
 }
 
-impl WriteOneFile {
-    pub fn new(name: String) -> Self {
+impl<F: Fn(&[u8],) -> &[u8]> WriteX<F> {
+    pub fn new(name: String, write_data_func: F) -> Self {
         
-        Self { name: name.into(), data: Vec::new() }
+        Self { name: name.into(), data: Vec::new(), write_data_func }
     }
 }
 
-impl ReadableFile for WriteOneFile {
+impl<F: Fn(&[u8],) -> &[u8]> ReadableFile for WriteX<F> {
     fn get_data(&self) -> &[u8] {
         &self.data
     }
@@ -25,13 +26,13 @@ impl ReadableFile for WriteOneFile {
     }
 }
 
-impl WriteableFile for WriteOneFile {
+impl<F: Fn(&[u8],) -> &[u8]> WriteableFile for WriteX<F> {
     fn get_data_mut(&mut self) -> &mut Vec<u8> { 
         &mut self.data
     }
 }
 
-impl FsFile for WriteOneFile {
+impl<F: Fn(&[u8],) -> &[u8]> FsFile for WriteX<F> {
 
     fn get_name(&self) -> &std::ffi::OsStr {
         &self.name
@@ -46,7 +47,7 @@ impl FsFile for WriteOneFile {
     }
 
     fn write(&mut self, offset: i64, data: &[u8], _flags: i32) -> Result<u32> {
-        Ok(self._write(offset, &data[..1]).try_into().unwrap())
+        Ok(self._write(offset, (self.write_data_func)(data)).try_into().unwrap())
     }
 
     fn setattr(
