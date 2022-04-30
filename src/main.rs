@@ -8,22 +8,22 @@ use clap::{arg, Command};
 
 fn create_files() -> Vec<Box<dyn FsFile>>
 {
-    let mut files = Vec::with_capacity(5);
+    let mut files : Vec<Box<dyn FsFile>> = Vec::with_capacity(5);
     let empty_names = vec!["empty1".into()];
     for name in empty_names {
-        files.push(Box::new(EmptyROFile::new(name)) as Box<dyn FsFile>);
+        files.push(Box::new(EmptyROFile::new(name)));
     }
     
     let full_names = vec!["full1", "full2"];
     for name in full_names {
         let data = String::from(name) + "\n".into();
-        files.push(Box::new(PrepopulatedFile::new(name.into(), data)) as Box<dyn FsFile>);
+        files.push(Box::new(PrepopulatedFile::new(name.into(), data)));
     }
 
     let readone_names = vec!["readone1", "readone2"];
     for name in readone_names {
         let data = String::from(name) + "\n".into();
-        files.push(Box::new(ReadX::new(name.into(), data, |_| 1)) as Box<dyn FsFile>);
+        files.push(Box::new(ReadX::new(name.into(), data, |_| 1)));
     }
 
     for i in 2..10 {
@@ -33,7 +33,7 @@ fn create_files() -> Vec<Box<dyn FsFile>>
 
     let writeone_names = vec!["writeone1", "writeone2"];
     for name in writeone_names {
-        files.push(Box::new(WriteX::new(name.into(), |data| &data[..1])) as Box<dyn FsFile>);
+        files.push(Box::new(WriteX::new(name.into(), |data| &data[..1])));
     }
 
     for i in 2..10 {
