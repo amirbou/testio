@@ -27,8 +27,7 @@ fn create_files() -> Vec<Box<dyn FsFile>>
     }
 
     for i in 2..10 {
-        // let data = "a".repeat(100_000);
-        let data = "a".repeat(100);
+        let data = "a".repeat(100_000);
         files.push(
             Box::new(
                 ReadX::new(

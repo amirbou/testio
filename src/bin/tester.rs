@@ -30,13 +30,14 @@ fn handle_read(library: Container<IOLibrary>, file: File, _sub_matches: &ArgMatc
     std::mem::forget(buf);
     let result = library.read_all(file.as_raw_fd(), buf_ptr, file_len as size_t);
     
+    let result_length = std::cmp::max(result, 0) as usize;
     let buffer = unsafe {
         Vec::from_raw_parts(
             buf_ptr,
-            file_len,
+            result_length,
             file_len)
     };
-    println!("{:?}",buffer);
+    println!("{:?}", buffer);
     result
 
 }
