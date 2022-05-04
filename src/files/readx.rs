@@ -30,7 +30,11 @@ impl<F: Fn(u32,) -> u32> FsFile for ReadX<F> {
     }
 
     fn read(&self, offset: i64, size: u32, _flags: i32) -> Result<&[u8]> {
-        Ok(self._read(offset, (self.read_size_func)(size)))
+        let size = match size {
+            0 => 0,
+            _ => (self.read_size_func)(size)
+        };
+        Ok(self._read(offset, size))
     }
 
     fn getattr(&self) -> FileAttr {
