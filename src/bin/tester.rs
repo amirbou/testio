@@ -37,9 +37,8 @@ fn handle_read(library: Container<IOLibrary>, file: File, _sub_matches: &ArgMatc
             result_length,
             file_len)
     };
-    println!("{:?}", buffer);
+    println!("{}", String::from_utf8(buffer).expect("Failed to decode data"));
     result
-
 }
 
 fn handle_write(library: Container<IOLibrary>, file: File, sub_matches: &ArgMatches) -> ssize_t {

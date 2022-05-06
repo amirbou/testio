@@ -4,27 +4,20 @@ use fuser::MountOption;
 use testio::{testfs::{TestFs, FsFile}, files::EmptyROFile, files::{PrepopulatedFile, ReadX, WriteX}};
 use clap::{arg, Command};
 
-
-
 fn create_files() -> Vec<Box<dyn FsFile>>
 {
-    let mut files : Vec<Box<dyn FsFile>> = Vec::with_capacity(5);
-    let empty_names = vec!["empty1".into()];
-    for name in empty_names {
-        files.push(Box::new(EmptyROFile::new(name)));
-    }
+    let mut files : Vec<Box<dyn FsFile>> = Vec::with_capacity(20);
     
-    let full_names = vec!["full1", "full2"];
-    for name in full_names {
-        let data = String::from(name) + "\n".into();
-        files.push(Box::new(PrepopulatedFile::new(name.into(), data)));
-    }
+    let empty_file = String::from("readempty");
+    files.push(Box::new(EmptyROFile::new(empty_file)));
+    
+    let name = String::from("readregular");
+    let data = name.clone() + "\n".into();
+    files.push(Box::new(PrepopulatedFile::new(name.into(), data)));
 
-    let readone_names = vec!["readone1", "readone2"];
-    for name in readone_names {
-        let data = String::from(name) + "\n".into();
-        files.push(Box::new(ReadX::new(name.into(), data, |_| 1)));
-    }
+    let name = String::from("readone");
+    let data = "a".repeat(10_000);
+    files.push(Box::new(ReadX::new(name, data, |_| 1)));
 
     for i in 2..10 {
         let data = "a".repeat(100_000);
@@ -41,10 +34,7 @@ fn create_files() -> Vec<Box<dyn FsFile>>
         );
     }
 
-    let writeone_names = vec!["writeone1", "writeone2"];
-    for name in writeone_names {
-        files.push(Box::new(WriteX::new(name.into(), |data| &data[..1])));
-    }
+    files.push(Box::new(WriteX::new("writeone".into(), |data| &data[..1])));
 
     for i in 2..10 {
         files.push(
