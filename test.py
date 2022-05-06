@@ -114,6 +114,10 @@ def test_write(fuse, write_tester, path):
     
     with open(full_path, 'r') as reader:
         data = reader.read()
-    
+
+    # truncate the file    
+    with open(full_path, 'w'):
+        pass
+
     assert result == len(test_data)
     assert test_data == data
