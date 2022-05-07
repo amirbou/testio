@@ -1,5 +1,6 @@
-from concurrent.futures import process
-from email.policy import default
+#!/usr/bin/env pytest
+
+from typing import *
 import pytest
 import subprocess
 import tempfile
@@ -43,9 +44,12 @@ def lib(request):
 
 @pytest.fixture(scope='session')
 def read_tester(tester_bin, tester_env, lib):
-    def run_tester(full_path):
+    def run_tester(full_path, count):
+        args = [tester_bin, lib, full_path, "read"]
+        if count != None:
+            args += [f"--count={count}"]
         return subprocess.run(
-            [tester_bin, lib, full_path, "read"],
+            args,            
             env=tester_env,
             capture_output=True,
             check=True,
@@ -82,16 +86,40 @@ def fuse(fuse_bin, fuse_env):
         print(err, file=sys.stderr)
 
 
+def const_5000(file_size):
+    return min(file_size, 5000)
+
+def plus_1000(file_size):
+    return file_size + 1000
+
+def half(file_size):
+    return file_size // 2
+
 @pytest.mark.parametrize(
     "path",
-    ["readempty", "readregular", "readone"] + [f"readX{i}" for i in range(2, 10)]
+    ["readempty", "readregular", "readone"] + [f"readX{i}" for i in range(2, 5)]
 )
-def test_read(fuse, read_tester, path):
+@pytest.mark.parametrize(
+    "count_modifier",
+    [
+        None,
+        const_5000,
+        plus_1000,
+        half,
+    ]
+)
+def test_read(fuse, read_tester, path, count_modifier: Callable[[int],int]):
     full_path = os.path.join(fuse, path)
-    with open(full_path, 'rb') as reader:
-        data = reader.read()
     
-    test_data = read_tester(full_path)
+    file_size = os.stat(full_path).st_size
+    count = None
+    if count_modifier != None:
+        count = count_modifier(file_size)
+    
+    with open(full_path, 'rb') as reader:
+        data = reader.read(count)
+    
+    test_data = read_tester(full_path, count)
     lines = test_data.stdout.splitlines()
     result = int(lines[-1].decode())
     extracted_test_data = b'\n'.join(lines[:-1])
@@ -102,7 +130,7 @@ def test_read(fuse, read_tester, path):
 
 @pytest.mark.parametrize(
     "path",
-    ["writeone"] + [f"writeX{i}" for i in range(2, 10)]
+    ["writeone"] + [f"writeX{i}" for i in range(2, 5)]
 )
 def test_write(fuse, write_tester, path):
     full_path = os.path.join(fuse, path)
