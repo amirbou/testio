@@ -2,11 +2,12 @@
 edition = "2021"
 name = "testio"
 version = "0.1.0"
+authors = ["AmirB"]
 [dependencies]
 fuser = "*"
 libc = "*"
 log = "*"
 env_logger = "*"
-clap = "*"
+clap = { version = "*", features = ["derive"] }
 dlopen = "0.1"
 dlopen_derive = "0.1"
