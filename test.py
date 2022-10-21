@@ -12,10 +12,10 @@ import string
 
 
 def create_rust_env(verbose):
+    env = dict(os.environ)
     if verbose:
-        return {"RUST_LOG": "debug"}
-    else:
-        return {}
+        env["RUST_LOG"] = "debug"
+    return env
 
 
 @pytest.fixture(scope='session')
@@ -76,7 +76,7 @@ def fuse(fuse_bin, fuse_env):
     with tempfile.TemporaryDirectory() as tempdir:
         base_path = os.path.join(tempdir, "testfs")
         os.mkdir(base_path)
-        fs = subprocess.Popen([fuse_bin, base_path], stderr=subprocess.PIPE, stdout=subprocess.PIPE, env=fuse_env)
+        fs = subprocess.Popen([fuse_bin, base_path], env=fuse_env)
         time.sleep(0.1)
         yield base_path
         subprocess.run(f'fusermount -u "{base_path}"', shell=True, check=True)

@@ -18,7 +18,7 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         "--fuse-bin",
-        help="Path to the fuse binary",
+        help="Path to the testfs fuse binary",
         default=os.path.join(MY_DIR, "target", "debug", "testio")
     )
     parser.addoption(
@@ -29,5 +29,5 @@ def pytest_addoption(parser):
     parser.addoption(
         "--lib",
         help="Path to the library that will be tested",
-        default=os.path.join(MY_DIR, "libexample.so")
+        default=os.path.join(MY_DIR, "example", "libexample.so")
     )
